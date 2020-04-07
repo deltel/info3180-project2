@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+{% include 'flash_messages.html' %}
+
+{% with user=user %}
+    <div class="user-container">
+        <img src="{{ url_for('static', filename="uploads/" + user.photo) }}" />
+        {{ user.firstName + " " + user.lastName }}
+        {{ user.email }}
+        {{ user.location }}
+        Joined on {{ user.created_on }}
+        About Me
+        {{ user.biography }}
+        <button>Send Message</button>
+        <button>Follow</button>
+    </div>
+{% endwith %}
+
+{% endblock %}
