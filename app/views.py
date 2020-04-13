@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, date
 from app import app 
 # Database imports
 from app import db
@@ -54,6 +55,15 @@ def profile_details(userid):
     user = UserProfile.query.get(userid)
     return render_template("profile-details.html", user=user)
 ###
+# Utility functions
+###
+
+def format_date_joined(date_joined):
+    dt = datetime.strptime(date_joined, "%d/%m/%y")
+    return dt.strftime("%B, %Y")
+###
+# 
+# ###
 # The functions below should be applicable to all Flask apps.
 ###
 

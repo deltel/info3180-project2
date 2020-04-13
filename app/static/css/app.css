@@ -1,3 +1,202 @@
+* {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+label {
+    font-size: 22px;
+}
+
+select, input, textarea {
+    padding-top: 2%;
+    padding-bottom: 2%;
+    padding-left: 5%;
+    font-size: 18px;
+    border-radius: 5px;
+    border: thin solid #b8b9ba;
+}
+
+input[type="file"] {
+    padding-left: 0;
+    border: none;
+}
+
 body {
     padding-top: 5rem;
+    background-color: #dae0f5;
+}
+
+main {
+    margin-bottom: 30px;
+}
+.container {
+    display: grid;
+    grid-template-rows: 10% 90%;
+    grid-template-columns: 25% 50% 25%;
+}
+
+.h1 {
+    grid-row: 1;
+    grid-column: 2;
+}
+
+.p {
+    margin-top: 20%;
+    grid-row: 2;
+    grid-column: 2;
+}
+
+h1 {
+    font-size: 48px;
+    grid-row: 1/2;
+    grid-column: 2;
+}
+
+ul, form, .user-container {
+    grid-row: 2;
+    grid-column: 2;
+}
+
+.user-container {
+    display: grid;
+    height: 400px;
+    grid-template-rows: 2fr 2fr 1fr;
+}
+
+.top {
+    grid-row: 1;
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    padding-top: 5%;
+    padding-bottom: 5%;
+}
+
+.image, .detail-info {
+    padding-left: 5%;
+    padding-right: 5%;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.image {
+    grid-column: 1;
+}
+
+.detail-info {
+    grid-column: 2;
+}
+
+.mid, .bottom {
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
+.mid {
+    grid-row: 2;
+    text-align: left;
+}
+
+.message, .show-right, .btn-submit {
+    background-color: #12c724;
+    color: #fff;
+}
+
+.footer {
+    margin-top: 10%;
+}
+
+.follow {
+    background-color: #125dc7;
+    color: #fff;
+}
+
+.bottom {
+    grid-row: 3;
+    text-align: center;
+}
+
+.btn-detail {
+    width: 40%;
+    margin-left: 2%;
+    margin-right: 2%;
+}
+
+form, .user-container, .show-users {
+    border: thin solid azure;
+    border-top: thick solid blue;
+    background-color: #fff;
+    border-radius: 5px;
+}
+
+.show-users {
+    padding: 5% 5%;
+}
+
+form {
+    padding: 10% 10% 20% 20%;
+}
+
+input, textarea, select {
+    width: 75%;
+}
+
+textarea {
+    height: 6em;
+}
+
+.btn {
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+.info {
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+.show-users {
+    margin-top: 10%;
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr;
+}
+
+.left {
+    grid-column: 1;
+}
+
+.middle {
+    grid-column: 2;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.right {
+    grid-column: 3;
+    text-align: center;
+    padding-top: 20%;
+    padding-bottom: 20%;
+}
+
+.show-right {
+    padding: 5% 20%;
+}
+
+img {
+    height: 30%;
+    width: 30%;
+}
+
+.show {
+    height: 100%;
+    width: 100%;
+}
+
+.png {
+    height: 25px;
+    width: 25px;
+}
+
+.det {
+    height: 70%;
+    width: 70%;
 }

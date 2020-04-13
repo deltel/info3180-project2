@@ -5,17 +5,29 @@
 {% include 'flash_messages.html' %}
 
 {% with user=user %}
-    <div class="user-container">
-        <img src="{{ url_for('static', filename="uploads/" + user.photo) }}" />
-        {{ user.firstName + " " + user.lastName }}
-        {{ user.email }}
-        {{ user.location }}
-        Joined on {{ user.created_on }}
-        About Me
-        {{ user.biography }}
-        <button>Send Message</button>
-        <button>Follow</button>
+<div class="user-container">
+    <div class="top">
+        <div class="image">
+            <img class="det" src="{{ url_for('static', filename="uploads/" + user.photo) }}" />
+        </div>
+        <div class="detail-info">
+            <strong><h4>{{ user.firstName + " " + user.lastName }}</h4></strong>
+            <img class="png" src="{{ url_for('static', filename="images/email.png") }}">{{ user.email }}<br>
+            <img class="png" src="{{ url_for('static', filename="images/location.png") }}">{{ user.location }}<br>
+            <img class="png" src="{{ url_for('static', filename="images/calendar.png") }}">Joined on {{ user.created_on }}
+        </div>
     </div>
+    <div class="mid">
+        <h5>About Me</h5>
+        {{ user.biography }}
+    </div>
+    <div class="bottom">
+        <button class="btn btn-detail message">Send Message</button>
+        <button class="btn btn-detail follow">Follow</button>
+    </div>
+
+
+</div>
 {% endwith %}
 
 {% endblock %}

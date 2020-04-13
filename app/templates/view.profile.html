@@ -1,35 +1,42 @@
 {% extends "base.html" %}
 
 {% block main %}
-<h2>Add User</h2>
+<h1>Add User</h1>
 <form action="" method="POST" enctype="multipart/form-data">
     {{ form.csrf_token }}
     <div class="form-group">
         {{ form.firstName.label }}
+        <br>
         {{ form.firstName }}
     </div>
     <div class="form-group">
         {{ form.lastName.label }}
+        <br>
         {{ form.lastName }}
     </div>
     <div class="form-group">
         {{ form.gender.label }}
+        <br>
         {{ form.gender }}
     </div>
     <div class="form-group">
         {{ form.email.label }}
+        <br>
         {{ form.email }}
     </div>
     <div class="form-group">
         {{ form.location.label }}
+        <br>
         {{ form.location }}
     </div>
     <div class="form-group">
         {{ form.biography.label }}
+        <br>
         {{ form.biography }}
     </div>
     <div class="form-group">
         {{ form.photo.label }}
+        <br>
         {{ form.photo }}
     </div>
     <button type="submit" class="btn btn-submit">Add Profile</button>
