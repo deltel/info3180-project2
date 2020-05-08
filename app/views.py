@@ -1,43 +1,91 @@
 import os
+import json
+import jwt
+from random import choice, randint
+import string
+
 from datetime import datetime, date
 from app import app 
 # Database imports
-from app import db
+from app import db, login_manager
 from app.models import Post, UserProfile, Like, Follow
+#flask login
+from flask_login import login_user
 #Flask form imports
 from app.forms import RegistrationForm, LoginForm, PostForm
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, g
 from werkzeug.utils import secure_filename
+from werkzeug.security import check_password_hash
 
-import json
+
+
+###
+# Utility functions
+###
+
+def format_date_joined():
+    return datetime.today().strftime("%d %B, %Y")
+
+#returns a string of 10 letters
+def random_string():
+    letters = string.ascii_letters
+    letters = letters + string.digits
+    s=""
+    return s.join([''.join(choice(letters)) for i in range(randint(10,21))])
 
 #All functions below need work
 @app.route('/api/users/register',methods=['POST']) 
 def register(): 
     form=RegistrationForm() 
     if request.method == 'POST' and form.validate_on_submit(): 
-        username=request.form['username']
-        password=request.form['password'] 
+        username=form.username.data
+        password=form.password.data 
         #password is already hashed in the models.py...consider removing the line below
-        password=generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
-        firstname=request.form['firstname']
-        lastname=request.form['lastname']
-        email=request.form['email']
-        location=request.form['location']
-        biography=request.form['biography']
+        #password=generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
+        firstname=form.username.data
+        lastname=form.lastname.data
+        email=form.email.data
+        location=form.location.data
+        biography=form.biography.data
         profile_picture=form.profile_picture.data 
         filename=secure_filename(profile_picture.filename)
         profile_picture.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+        joined = format_date_joined()
+        
+        user = UserProfile(username, password, firstname, lastname, email, location, biography, filename, joined)
+        db.session.add(user)
+        db.session.commit()
+        
         return jsonify({"message": "New user has been made"}) 
+    
+    data = {
+        "errors": form_errors(form)
+    }
+    return jsonify(data)
         
    
 @app.route('/api/auth/login',methods=['POST'])
 def login():
     form=LoginForm() 
     if request.method=='POST' and form.validate_on_submit():
-        username=request.form['username']
-        password=request.form['password']  
-    return render_template('index.html', form = form)
+        username=form.username.data
+        password=form.password.data
+        #query for the username
+        user = UserProfile.query.filter_by(username=username).first()
+        #check if user exists an id password corresponds
+        if user is not None and check_password_hash(user.password, password):
+            # get user id, load into session
+            payload = {
+                'id': user.id,
+                'username': user.username
+            }
+            #generate jwt token
+            token = jwt.encode(payload, random_string, algorithm='HS256')
+            login_user(user)
+            return jsonify(error = None, data={ 'token': token }, message="Logged in successfully")
+            #return render_template('index.html', form=form)
+
+    return jsonify(error={ form_errors(form) })
 
 # Please create all new routes and view functions above this route.
 # This route is now our catch all route for our VueJS single page
