@@ -87,6 +87,11 @@ def login():
 
     return jsonify(error={ form_errors(form) })
 
+# user_loader callback. This callback is used to reload the user object from
+# the user ID stored in the session
+@login_manager.user_loader
+def load_user(id):
+    return UserProfile.query.get(int(id))
 # Please create all new routes and view functions above this route.
 # This route is now our catch all route for our VueJS single page
 # application.

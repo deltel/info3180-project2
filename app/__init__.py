@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 
@@ -10,5 +11,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://project2:password007@local
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+#Flask-login to login_manager
+login_manager =LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+app.config.from_object(__name__)
 
 from app import views, models
