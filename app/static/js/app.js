@@ -75,10 +75,16 @@ const register=Vue.component('register',{
     template:`
     
     <div class="d-flex justify-content-center"> 
-    <div>
-    <h2>Registration Form</h2>
+      <div>
+      <h2>Registration Form</h2>
+      <h4 v-if="message" class="success">{{ message }}</h4>
+        <ul v-if="errors.length > 0" class="error_list">
+          <li v-for="error in errors" class="error_items">
+            <div>{{ error }}</div>
+          </li>
+        </ul>
     <div class="jumbotron"> 
-    <form id="registerform" action="/api/users/register" method="POST" enctype = "multipart/form-data" > 
+    <form id="registerForm" method="POST" enctype = "multipart/form-data" @submit.prevent="registerUser"> 
     <div>
     <label>Username</label> 
     </div>
@@ -129,7 +135,7 @@ const register=Vue.component('register',{
     </div> 
     <div class="d-flex flex-column"> 
     <p></p>
-    <button type="submit" name="submit" class="btn btn-secondary"><router-link to='/my_profile'>REGISTER</router-link></button> 
+    <button type="submit" name="submit" class="btn btn-secondary">REGISTER</button> 
     </div>
     </form>
     </div> 
@@ -138,9 +144,44 @@ const register=Vue.component('register',{
    
     `,
     data: function() {
-       return {}
+       return {
+         message: '',
+         errors: []
+       }
+    },
+    methods: {
+      registerUser: function(){
+        let self  = this;
+        let registerForm = document.getElementById('registerForm');
+        let form_data = new FormData(registerForm);
+
+        fetch("/api/users/register", {
+          method: 'POST',
+          body: form_data,
+          headers: {
+            'X-CSRFToken': token
+          },
+          credentials: 'same-origin'
+        })
+        .then(function(response){
+          return response.json();
+        })
+        .then(function(jsonResponse){ 
+          if (jsonResponse['errors']) {
+            self.errors = jsonResponse['errors'];
+            setTimeout(function(){ self.errors = [] }, 5000);
+          } else {
+            self.message = jsonResponse['message'];
+            registerForm.reset();
+            setTimeout(function(){ self.message = ''; }, 5000);
+          }
+        })
+        .catch(function(error){
+          console.log(error);
+        }); 
+      }
     }
-}) 
+}); 
 
 
 
@@ -151,39 +192,68 @@ const login =Vue.component('login',{
           <div>
             <h2>Login</h2>
             <div class="jumbotron"> 
-              <form id="Loginform" action="/api/auth/login" method="POST" enctype = "multipart/form-data">
-              <div>
+              <form id="loginForm" method="POST" enctype="multipart/form-data">
+                <div>
+                  <br>
+                  <br>
+                  <label>Username</label> 
+                </div>
+                <div>
+                  <input id="username" name="username" type="text" />
+                </div> 
+                <div>
+                  <br>
+                  <label>Password</label> 
+                </div> 
+                <div> 
+                  <input id="password" name="password" type="password" />
+                </div> 
                 <br>
                 <br>
-                <label>Username</label> 
-              </div>
-              <div>
-                <input id="username" name="username" type="text" />
-              </div> 
-              <div>
-                <br>
-                <label>Password</label> 
-              </div> 
-              <div> 
-                <input id="password" name="password" type="password" />
-              </div> 
-              <br>
-              <br>
-              <div class="d-flex flex-column"> 
-                <p></p>
-                <button type="submit" name="submit" class="btn btn-success">LOGIN</button>
-              </div>
-            </form>
+                <div class="d-flex flex-column"> 
+                  <p></p>
+                  <button type="submit" name="submit" class="btn btn-success">LOGIN</button>
+                </div>
+              </form>
+            </div> 
           </div> 
-        </div> 
+        </div>
       </div>
-    </div>
     `,
-	
     data: function() {
-       return {}
-    }
-    
+       return {
+         message: '',
+         errors: []
+       }
+    },
+    methods: {
+      loginUser: function(){
+        let self = this;
+        let loginForm = document.getElementById('loginForm');
+        let form_data = new FormData(loginForm);
+
+        fetch('/api/auth/login', {
+          method: 'POST',
+          body: form_data,
+          headers: {
+            'X-CSRFToken': token
+          },
+          credentials: 'same-origin'
+        })
+        .then(function(response){
+          return response.json();
+        })
+        .then(function(jsonResponse){
+          if (jsonResponse['errors']) {
+            self.errors = jsonResponse['errors'];
+            setTimeout(function(){ self.errors = [] }, 5000);
+          } else {
+            self.message = jsonResponse['message'];
+            setTimeout(function(){ self.message = ''; }, 5000);
+          }
+        })
+      }
+    }  
 })
 
 const NotFound = Vue.component('not-found', {
@@ -195,7 +265,7 @@ const NotFound = Vue.component('not-found', {
     data: function () {
         return {}
     }
-})
+});
 
 // Define Routes
 const router = new VueRouter({

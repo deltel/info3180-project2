@@ -33,9 +33,9 @@ class UserProfile(db.Model):
 
     def __init__(self, username, password, first, last, email, location, bio, photo, joined_on):
         self.username = username
-        self.password = generate_password_hash(password, method='pbkdf2:sha256')
+        self.password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
         self.firstname = first
-        self.lastlame = last
+        self.lastname = last
         self.email = email
         self.location = location
         self.biography = bio

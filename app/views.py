@@ -38,17 +38,17 @@ def random_string():
 def register(): 
     form=RegistrationForm() 
     if request.method == 'POST' and form.validate_on_submit(): 
-        username=form.username.data
-        password=form.password.data 
+        username = form.username.data
+        password = form.password.data 
         #password is already hashed in the models.py...consider removing the line below
         #password=generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
-        firstname=form.username.data
-        lastname=form.lastname.data
-        email=form.email.data
-        location=form.location.data
-        biography=form.biography.data
-        profile_picture=form.profile_picture.data 
-        filename=secure_filename(profile_picture.filename)
+        firstname = form.username.data
+        lastname = form.lastname.data
+        email = form.email.data
+        location = form.location.data
+        biography = form.biography.data
+        profile_picture = form.profile_picture.data 
+        filename = secure_filename(profile_picture.filename)
         profile_picture.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
         joined = format_date_joined()
         
@@ -56,7 +56,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        return jsonify({"message": "New user has been made"}) 
+        return jsonify({"message": "User successfully registered"}) 
     
     data = {
         "errors": form_errors(form)
