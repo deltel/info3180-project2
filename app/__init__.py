@@ -2,9 +2,11 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
+from flask_httpauth import HTTPBasicAuth
 
 app = Flask(__name__)
 csrf = CSRFProtect(app)
+auth = HTTPBasicAuth()
 app.config['UPLOAD_FOLDER'] = './app/static/upload'
 app.config['SECRET_KEY'] = 'njsdbapdmakdoruer389r9ejfdnfio'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://project2:password007@localhost/db_project2'

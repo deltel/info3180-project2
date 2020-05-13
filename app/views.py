@@ -7,17 +7,23 @@ import string
 from datetime import datetime, date
 from app import app 
 # Database imports
-from app import db, login_manager
+from app import db, login_manager, auth
 from app.models import Post, UserProfile, Like, Follow
 #flask login
-from flask_login import login_user
+from flask_login import login_user, logout_user
 #Flask form imports
 from app.forms import RegistrationForm, LoginForm, PostForm
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, g
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, g, make_response
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
+#jwt
+from flask import _request_ctx_stack
+from functools import wraps
+import base64
 
-
+##
+#checkout the read me
+##
 
 ###
 # Utility functions
@@ -34,6 +40,48 @@ def random_string():
     return s.join([''.join(choice(letters)) for i in range(randint(10,21))])
 
 #All functions below need work
+
+def requires_auth(f):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    auth = request.headers.get('Authorization', None)
+    if not auth:
+      return jsonify({'code': 'authorization_header_missing', 'description': 'Authorization header is expected'}), 401
+
+    parts = auth.split()
+
+    if parts[0].lower() != 'bearer':
+      return jsonify({'code': 'invalid_header', 'description': 'Authorization header must start with Bearer'}), 401
+    elif len(parts) == 1:
+      return jsonify({'code': 'invalid_header', 'description': 'Token not found'}), 401
+    elif len(parts) > 2:
+      return jsonify({'code': 'invalid_header', 'description': 'Authorization header must be Bearer + \s + token'}), 401
+
+    token = parts[1]
+    try:
+         payload = jwt.decode(token, 'some-secret')
+
+    except jwt.ExpiredSignature:
+        return jsonify({'code': 'token_expired', 'description': 'token is expired'}), 401
+    except jwt.DecodeError:
+        return jsonify({'code': 'token_invalid_signature', 'description': 'Token signature is invalid'}), 401
+
+    g.current_user = user = payload
+    return f(*args, **kwargs)
+
+  return decorated
+
+#basic http authorization
+@auth.verify_password
+def verify_password(username, password):
+    user = UserProfile.query.filter_by(username=username).first()
+    if user is not None and check_password_hash(user.password, password):
+        return username
+
+@auth.error_handler
+def unauthorized():
+    return make_response(jsonify({ 'error': 'Unauthorized access' }), 401)
+
 @app.route('/api/users/register',methods=['POST']) 
 def register(): 
     form=RegistrationForm() 
@@ -87,11 +135,27 @@ def login():
 
     return jsonify(error={ form_errors(form) })
 
+@app.route('/api/auth/logout', methods=['GET'])
+@auth.login_required
+@requires_auth
+def logout():
+    logout_user()
+    return jsonify({'message': 'Logged out succesfully'})
 # user_loader callback. This callback is used to reload the user object from
 # the user ID stored in the session
 @login_manager.user_loader
 def load_user(id):
     return UserProfile.query.get(int(id))
+
+@app.route('/api/posts', methods=['GET'])
+@requires_auth
+@auth.login_required    #basic http authorization required
+def all_posts():
+    posts = db.session.query(Post).all()
+    if posts is not None:
+        return jsonify(error=None, posts=posts)
+    return make_response(jsonify({'message': 'There are no posts'}), 200)
+
 # Please create all new routes and view functions above this route.
 # This route is now our catch all route for our VueJS single page
 # application.
