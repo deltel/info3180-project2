@@ -7,7 +7,7 @@ import string
 from datetime import datetime, date
 from app import app 
 # Database imports
-from app import db, login_manager, auth
+from app import db, login_manager
 from app.models import Post, UserProfile, Like, Follow
 #flask login
 from flask_login import login_user, logout_user
@@ -59,7 +59,7 @@ def requires_auth(f):
 
     token = parts[1]
     try:
-         payload = jwt.decode(token, 'some-secret')
+         payload = jwt.decode(token, app.config['SECRET_KEY'])
 
     except jwt.ExpiredSignature:
         return jsonify({'code': 'token_expired', 'description': 'token is expired'}), 401
@@ -72,6 +72,7 @@ def requires_auth(f):
   return decorated
 
 #basic http authorization
+'''
 @auth.verify_password
 def verify_password(username, password):
     user = UserProfile.query.filter_by(username=username).first()
@@ -81,6 +82,7 @@ def verify_password(username, password):
 @auth.error_handler
 def unauthorized():
     return make_response(jsonify({ 'error': 'Unauthorized access' }), 401)
+'''
 
 @app.route('/api/users/register',methods=['POST']) 
 def register(): 
@@ -104,7 +106,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        return jsonify({"message": "User successfully registered"}) 
+        return make_response(jsonify({"message": "User successfully registered"}), 201) 
     
     data = {
         "errors": form_errors(form)
@@ -124,37 +126,57 @@ def login():
         if user is not None and check_password_hash(user.password, password):
             # get user id, load into session
             payload = {
-                'id': user.id,
-                'username': user.username
+                'sub': user.id,
+                'username': user.username,
+                'firstname': user.firstname,
+                'lastname': user.lastname,
+                'email': user.email,
+                'location': user.location,
+                'biography': user.biography,
+                'profile_photo': user.profile_photo,
+                'joined_on': user.joined_on
             }
             #generate jwt token
-            token = jwt.encode(payload, random_string, algorithm='HS256')
-            login_user(user)
-            return jsonify(error = None, data={ 'token': token }, message="Logged in successfully")
+            token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+            #login_user(user)
+            return make_response(jsonify({ 'token': token, 'message': 'User successfully logged in.'}), 200)
             #return render_template('index.html', form=form)
 
     return jsonify(error={ form_errors(form) })
 
-@app.route('/api/auth/logout', methods=['GET'])
-@auth.login_required
+@app.route('/api/auth/logout', methods=['POST'])
+#@login_required
 @requires_auth
 def logout():
-    logout_user()
-    return jsonify({'message': 'Logged out succesfully'})
-# user_loader callback. This callback is used to reload the user object from
-# the user ID stored in the session
-@login_manager.user_loader
-def load_user(id):
-    return UserProfile.query.get(int(id))
+    #logout_user()
+    return make_response(jsonify({'message': 'User successfully logged out.'}), 200)
+
+#check readme under heading user_details
+@requires_auth
+@app.route('api/users/<int: user_id>', methods=['GET'])
+def user_details(user_id):
+    user = g.current_user
+    posts = Post.query.filter_by(user_id=user_id).all()
+    if posts is not None:
+        return make_response(jsonify(user=user, posts=posts), 200)
+    return make_response(jsonify(user=user, message="No posts have been made."), 200)
 
 @app.route('/api/posts', methods=['GET'])
 @requires_auth
-@auth.login_required    #basic http authorization required
+#@login_required    
 def all_posts():
     posts = db.session.query(Post).all()
     if posts is not None:
         return jsonify(error=None, posts=posts)
     return make_response(jsonify({'message': 'There are no posts'}), 200)
+
+# user_loader callback. This callback is used to reload the user object from
+# the user ID stored in the session
+#flask
+'''@login_manager.user_loader
+def load_user(id):
+    return UserProfile.query.get(int(id))
+'''
 
 # Please create all new routes and view functions above this route.
 # This route is now our catch all route for our VueJS single page
