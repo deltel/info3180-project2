@@ -153,7 +153,7 @@ def logout():
 
 #check readme under heading user_details
 @requires_auth
-@app.route('api/users/<int: user_id>', methods=['GET'])
+@app.route('/api/users/<int:user_id>', methods=['GET'])
 def user_details(user_id):
     user = g.current_user
     posts = Post.query.filter_by(user_id=user_id).all()
@@ -173,10 +173,9 @@ def all_posts():
 # user_loader callback. This callback is used to reload the user object from
 # the user ID stored in the session
 #flask
-'''@login_manager.user_loader
+@login_manager.user_loader
 def load_user(id):
     return UserProfile.query.get(int(id))
-'''
 
 # Please create all new routes and view functions above this route.
 # This route is now our catch all route for our VueJS single page
