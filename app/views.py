@@ -106,9 +106,8 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        return make_response(jsonify({"message": "User successfully registered"}), 201) 
-    
-    return make_response(jsonify(error={ form_errors(form) }), 400)
+        return jsonify({"message": "User successfully registered"}), 201 
+    return make_response(jsonify( error=form_errors(form) ), 400)
         
    
 @app.route('/api/auth/login',methods=['POST'])
@@ -134,12 +133,12 @@ def login():
                 'joined_on': user.joined_on
             }
             #generate jwt token
-            token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+            token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
             #login_user(user)
             return make_response(jsonify({ 'token': token, 'message': 'User successfully logged in.'}), 200)
             #return render_template('index.html', form=form)
 
-    return make_response(jsonify(error={ form_errors(form) }), 400)
+    return make_response(jsonify( error=form_errors(form) ), 400)
 
 
 @app.route('/api/auth/logout', methods=['POST'])
@@ -190,7 +189,7 @@ def new_post(user_id):
         return make_response(jsonify({
             'message': 'Successfuly created a new post'
             }), 201)
-    return make_response(jsonify(error={ form_errors(form) }), 400)
+    return make_response(jsonify( error=form_errors(form) ), 400)
 
 
 @app.route('/api/users/<int:user_id>/follow', methods=['POST'])
@@ -225,8 +224,8 @@ def follower_count(user_id):
 @requires_auth    
 def all_posts():
     posts = db.session.query(Post).all()
-    if posts is not None:
-        return jsonify(error=None, posts=posts)
+    if len(posts) > 0:
+        return jsonify(error=None, posts=posts, message='Posts found'), 200
     return make_response(jsonify({'message': 'There are no posts'}), 200)
 
 
