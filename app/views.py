@@ -138,6 +138,7 @@ def login():
             #login_user(user)
             return make_response(jsonify({ 'token': token, 'message': 'User successfully logged in.'}), 200)
             #return render_template('index.html', form=form)
+            # return render_template()
 
     return make_response(jsonify(error={ form_errors(form) }), 400)
 

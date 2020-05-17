@@ -256,6 +256,59 @@ const login =Vue.component('login',{
     }  
 })
 
+
+const user = Vue.component('user',{
+  template:`
+      <div>          
+      <div class="Profile pic">
+        <img class="imgs" src="{{ url_for('static', filename="uploads/" + i) }}" />
+      </div>
+      <div>
+      <h3>{{user.firstname}} {{user.lastname}}</h3>
+      </div>
+      <div>
+      <p>{{user.biography}}</p>
+      </div>
+
+    </div>
+    `,
+    data: function() {
+      return {
+          user:[],
+          uc:user_id,
+          Other:other,
+          post:[],
+          follow:[]
+      };
+},
+Created: function(){
+  let self =this;
+  let userid = ""+self.uc;
+  fetch('/api/users/'+userid,{
+    method: 'GET',
+    'headers':{
+      'Authorization': 'Bearer'+ localStorage.getItem('token'),
+      'X-CSRFToken': token
+    },
+    credentials: 'same-origin'
+  })
+  .then(function(response){
+    return response.json();
+  })
+  .then(function (jsonResponse) {
+    self.user= jsonResponse.response["0"]; 
+      console.log(jsonResponse);
+  })
+  .catch(function(error){
+    // console.log(error);
+ });
+},
+methods:{
+
+}
+
+})
+
 const NotFound = Vue.component('not-found', {
     template: `
     <div>
@@ -274,7 +327,8 @@ const router = new VueRouter({
         {path: "/", component: Home},
         // Put other routes here
 		 {path:"/register",component:register},
-		{path:"/login",component:login},		 
+    {path:"/login",component:login},	
+    {path:"/users/:user_id",component:user},	 
         // This is a catch all route in case none of the above matches
         {path: "*", component: NotFound}
     ]
