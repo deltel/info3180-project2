@@ -4,11 +4,13 @@ from werkzeug.security import generate_password_hash
 class Post(db.Model):
     __tablename__ = "posts"
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
+    #related to userprofile
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     photo = db.Column(db.String, nullable=False)
     caption = db.Column(db.String(400), nullable=False)
     #get and format the date in the views.py then store it as a string
     created_on = db.Column(db.String, nullable=False)
+
 
     def __init__(self, user_id, photo, caption, created_on):
         self.user_id = user_id
@@ -30,6 +32,10 @@ class UserProfile(db.Model):
     profile_photo = db.Column(db.String, nullable=False)
     #get and format the date in the views.py then store it as a string
     joined_on = db.Column(db.String, nullable=False)
+
+    #relationships
+    posts = db.relationship('Post', lazy='select',
+        backref=db.backref('users', lazy='joined') )
 
     def __init__(self, username, password, first, last, email, location, bio, photo, joined_on):
         self.username = username
