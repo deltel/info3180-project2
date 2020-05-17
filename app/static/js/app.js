@@ -284,6 +284,7 @@ const Login = Vue.component('login',{
             localStorage.setItem('token', jwt_token);
             console.info('Token generated and added to local storage.');
             self.token = jwt_token;
+            self.$router.push("/explore");
             setTimeout(function(){ self.message = ''; }, 5000);
           }
         })
