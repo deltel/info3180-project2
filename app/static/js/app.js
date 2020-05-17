@@ -324,14 +324,12 @@ Created: function(){
     credentials: 'same-origin'
   })
   .then(function(response){
-    console.log(response.json())
     if (!response.ok){
-      self.$router.push("/explore");
+      self.$router.push("/users/:userid");
     }
     return response.json();
   })
   .then(function (jsonResponse) {
-    console.log(jsonResponse.response["0"])
     self.user= jsonResponse.response["0"]; 
       console.log(jsonResponse);
   })
@@ -357,13 +355,24 @@ const Explore = Vue.component('explore', {
         <h2 v-if="posts.length == 0" class="alert alert-info">{{ message }}</h2>
         <ul v-if="posts.length > 0">
           <li v-for="post in posts">
-            <div>{{ post }}</div>
+            <div class="card" style="width: 18rem;">
+              <h5 class="card-title">{{posts.username}}</h5>
+              <img class="card-img-top" src="{{posts.photo}}" alt="Card image cap">
+              <div class="card-body">
+                <p class="card-text">{{posts.body}}</p>
+              </div>
+            </div>
           </li>
         </ul>
       </div>
-      <div class="col-md-2">
+      <form>
+        <div class="form-group">
+        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+        </div>
+        <div class
         <button type="button" class="btn btn-primary">New Post</button>
-      </div>
+      </form>
+  
     </div>
   `,
   created: function(){
@@ -382,7 +391,6 @@ const Explore = Vue.component('explore', {
       return response.json();
     })
     .then(function(jsonResponse){
-      console.log(jsonResponse);
       if (jsonResponse['posts']) {
         self.posts = jsonResponse['posts'];
       }
