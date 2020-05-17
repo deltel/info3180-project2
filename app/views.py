@@ -123,19 +123,12 @@ def login():
             # get user id, load into session
             payload = {
                 'sub': user.id,
-                'username': user.username,
-                'firstname': user.firstname,
-                'lastname': user.lastname,
-                'email': user.email,
-                'location': user.location,
-                'biography': user.biography,
-                'profile_photo': user.profile_photo,
-                'joined_on': user.joined_on
+                'username': user.username
             }
             #generate jwt token
             token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
             #login_user(user)
-            return make_response(jsonify({ 'token': token, 'message': 'User successfully logged in.'}), 200)
+            return make_response(jsonify({'id': user.id, 'token': token, 'message': 'User successfully logged in.'}), 200)
             #return render_template('index.html', form=form)
 
     return make_response(jsonify( error=form_errors(form) ), 400)
@@ -179,7 +172,7 @@ def new_post(user_id):
         photo = form.photo.data
 
         filename = secure_filename(photo.filename)
-        profile_picture.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+        photo.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
         created = format_date_joined()
         #adding the post to the database
         post = Post(user_id,filename, caption, created)

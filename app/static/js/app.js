@@ -48,6 +48,7 @@ Vue.component('app-header', {
           console.log(jsonResponse);
           //remove token from local storage
           localStorage.removeItem('token');
+          localStorage.removeItem('id');
           self.message = jsonResponse['message']; 
           self.token = '';
           self.$router.push("/");
@@ -279,12 +280,15 @@ const Login = Vue.component('login',{
             console.log(jsonResponse);
             //get the token
             let jwt_token = jsonResponse['token'];
+            let id = jsonResponse['id'];
             self.message = jsonResponse['message'];
             //store the token to local storage and self
             localStorage.setItem('token', jwt_token);
+            localStorage.setItem('id', id);
             console.info('Token generated and added to local storage.');
             self.token = jwt_token;
             setTimeout(function(){ self.message = ''; }, 5000);
+            self.$router.push("/explore");
           }
         })
         .catch(function(error){
@@ -293,7 +297,7 @@ const Login = Vue.component('login',{
         });
       }
     }  
-})
+});
 
 const Explore = Vue.component('explore', {
   template: `
@@ -307,7 +311,7 @@ const Explore = Vue.component('explore', {
         </ul>
       </div>
       <div class="col-md-2">
-        <button type="button" class="btn btn-primary">New Post</button>
+        <button type="button" class="btn btn-primary" v-on:click="newPost">New Post</button>
       </div>
     </div>
   `,
@@ -321,7 +325,7 @@ const Explore = Vue.component('explore', {
     })
     .then(function(response){
       //prevent unauthorized acces
-      if (!response.ok){
+      if (!localStorage.getItem('token')){
         self.$router.push("/login");
       }
       return response.json();
@@ -343,9 +347,75 @@ const Explore = Vue.component('explore', {
       error: [],
       posts: []
     }
+  },
+  methods: {
+    newPost: function(){
+      this.$router.push("/post");
+    }
   }
 
-})
+});
+
+const Post = Vue.component('post', {
+  template: `
+    <div class="container">
+      <form id="post-form" class="was-validated" enctype="multipart/form-data" @submit.prevent="newPost">
+        <div class="custom-file mb-3">
+          <label for="photo" class="custom-file-label">Photo</label>
+          <input type="file" class="custom-file-input" name="photo" id="photo" required>
+          <div class="invalid-feedback"></div>
+          </div>
+        <div class="mb-3">
+          <label for="caption">Caption</label>
+          <textarea class="form-control is-invalid" name="caption" id="caption" required></textarea>
+          <div class="invalid-feedback">
+            Please enter a caption
+          </div>
+        </div>
+        <button type="Submit" class="btn btn-success">Submit</button>
+      </form>
+    </div>
+  `,
+  data: function(){
+    return {
+      message: '',
+      id: localStorage.getItem('id'),
+      errors: []
+    }
+  },
+  methods: {
+    newPost: function(){
+      let self = this;
+      let postForm = document.getElementById('post-form');
+      let form_data = new FormData(postForm);
+
+      fetch(`/api/users/${self.id}/posts`, {
+        method: 'POST',
+        body: form_data,
+        headers: {
+          'X-CSRFToken': token,
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        credentials: 'same-origin'
+      })
+      .then(function(response){
+        if(!response.ok){
+          self.$router.push("/login");
+        }
+        return response.json();
+      })
+      .then(function(jsonResponse){
+        console.log(jsonResponse);
+        self.message = jsonResponse['message'];
+        self.$router.push("/explore");
+      })
+      .catch(function(error){
+        console.log(error);
+        self.errors = error;
+      });
+    }
+  }
+});
 
 const NotFound = Vue.component('not-found', {
     template: `
@@ -364,9 +434,10 @@ const router = new VueRouter({
     routes: [
       { path: "/", component: Home},
         // Put other routes here
-		  { path:"/register", component: Register },
-      { path:"/login", component: Login },
-      { path: "/explore", component: Explore },		 
+		  { path: "/register", component: Register },
+      { path: "/login", component: Login },
+      { path: "/explore", component: Explore },
+      { path: "/post", component: Post },		 
         // This is a catch all route in case none of the above matches
       { path: "*", component: NotFound}
     ]
