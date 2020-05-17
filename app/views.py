@@ -218,9 +218,18 @@ def follower_count(user_id):
 def all_posts():
     posts = db.session.query(Post).all()
     if len(posts) > 0:
-        return jsonify(error=None, posts=posts, message='Posts found'), 200
+        post1 = []
+        for post in posts:
+            el = {
+                'id': post.id,
+                'user_id': post.user_id,
+                'photo': post.photo,
+                'caption': post.caption,
+                'created_on': post.created_on
+            }
+        post1.append(el)
+        return jsonify(error=None, posts=post1, message='Posts found'), 200
     return make_response(jsonify({'message': 'There are no posts'}), 200)
-
 
 @app.route('/api/posts/<int:post_id>/like', methods=['POST'])
 @requires_auth
