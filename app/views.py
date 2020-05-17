@@ -106,9 +106,8 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        return make_response(jsonify({"message": "User successfully registered"}), 201) 
-    
-    return make_response(jsonify(error={ form_errors(form) }), 400)
+        return jsonify({"message": "User successfully registered"}), 201 
+    return make_response(jsonify( error=form_errors(form) ), 400)
         
    
 @app.route('/api/auth/login',methods=['POST'])
@@ -122,6 +121,7 @@ def login():
         #check if user exists an id password corresponds
         if user is not None and check_password_hash(user.password, password):
             # get user id, load into session
+            # print(user.joined_on.strftime())
             payload = {
                 'sub': user.id,
                 'username': user.username,
@@ -131,27 +131,29 @@ def login():
                 'location': user.location,
                 'biography': user.biography,
                 'profile_photo': user.profile_photo,
-                'joined_on': user.joined_on
+                'joined_on': user.joined_on.strftime('%d-%m-%Y')
             }
             #generate jwt token
-            token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+            token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
             #login_user(user)
             return make_response(jsonify({ 'token': token, 'message': 'User successfully logged in.'}), 200)
             #return render_template('index.html', form=form)
             # return render_template()
 
-    return make_response(jsonify(error={ form_errors(form) }), 400)
+    return make_response(jsonify( error=form_errors(form) ), 400)
 
+
+@app.route('/api/auth/logout', methods=['POST'])
 #@login_required
 @requires_auth
-@app.route('/api/auth/logout', methods=['POST'])
 def logout():
     #logout_user()
     return make_response(jsonify({'message': 'User successfully logged out.'}), 200)
 
 #check readme under heading user_details
-@requires_auth
+
 @app.route('/api/users/<int:user_id>', methods=['GET'])
+@requires_auth
 def user_details(user_id):
     user = g.current_user
     posts = Post.query.filter_by(user_id=user_id).all()
@@ -159,8 +161,9 @@ def user_details(user_id):
         return make_response(jsonify(user=user, posts=posts), 200)
     return make_response(jsonify(user=user, message="No posts have been made."), 200)
 
-@requires_auth
+
 @app.route('/api/users/<int:user_id>/posts', methods=['GET'])
+@requires_auth
 def user_posts(user_id):
     posts = Post.query.filter_by(user_id=user_id).all()
     if posts is not None:
@@ -168,8 +171,9 @@ def user_posts(user_id):
     return make_response(jsonify(message="No posts have been made."), 200)
 
 #check readme under posts heading
-@requires_auth
+
 @app.route('/api/users/<int:user_id>/posts', methods=['POST'])
+@requires_auth
 def new_post(user_id):
     form = PostForm()
     if request.method == "POST" and form.validate_on_submit():
@@ -187,10 +191,11 @@ def new_post(user_id):
         return make_response(jsonify({
             'message': 'Successfuly created a new post'
             }), 201)
-    return make_response(jsonify(error={ form_errors(form) }), 400)
+    return make_response(jsonify( error=form_errors(form) ), 400)
 
-@requires_auth
+
 @app.route('/api/users/<int:user_id>/follow', methods=['POST'])
+@requires_auth
 def follow_user(user_id):
     user = g.current_user
     #adding to the followers database
@@ -202,8 +207,9 @@ def follow_user(user_id):
         'message': 'You are now following that user'
         }), 201)
 
-@requires_auth
+
 @app.route('/api/users/<int:user_id>/follow', methods=['GET'])
+@requires_auth
 def follower_count(user_id):
     follows = Follow.query.filter_by(user_id=user_id).all()
     if follows is not None: 
@@ -214,17 +220,19 @@ def follower_count(user_id):
         'message': 'No followers'
         }), 200)
 
+
+@app.route('/api/posts', methods=['GET'])
 #@login_required
-@requires_auth
-@app.route('/api/posts', methods=['GET'])    
+@requires_auth    
 def all_posts():
     posts = db.session.query(Post).all()
-    if posts is not None:
-        return jsonify(error=None, posts=posts)
+    if len(posts) > 0:
+        return jsonify(error=None, posts=posts, message='Posts found'), 200
     return make_response(jsonify({'message': 'There are no posts'}), 200)
 
-@requires_auth
+
 @app.route('/api/posts/<int:post_id>/like', methods=['POST'])
+@requires_auth
 def like_post(post_id):
     user = g.current_user
     #adding to like database

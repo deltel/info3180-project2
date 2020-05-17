@@ -1,37 +1,62 @@
 /* Add your Application JavaScript */
 Vue.component('app-header', {
     template: `
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-      <a class="navbar-brand" href="#">Photogram</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <a class="navbar-brand" href="#">Photogram</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
     
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
-          </li>
-		  
-			<li class="nav-item active">
-            <router-link to="/upload" class="nav-link">Explore</router-link>
-          </li>
-		  
-		  <li class="nav-item active">
-            <router-link to="/upload" class="nav-link">My Profile</router-link>
-          </li>
-		  
-
-		  
-		   <li class="nav-item active">
-            <router-link to="/upload" class="nav-link">Logout</router-link>
-          </li>
-		  
-		  
-        </ul>
-      </div>
-    </nav>
-    `
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <router-link class="nav-link" to="/">Home<span class="sr-only">(current)</span></router-link>
+            </li>
+			      <li class="nav-item active">
+              <router-link to="/explore" class="nav-link">Explore</router-link>
+            </li>
+          </ul>
+          <ul class="navbar-nav navbar-right">
+            <li v-if="token" class="nav-item active">
+              <a href="#" class="nav-link" v-on:click.stop="logOut">Logout</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    `,
+    data: function(){
+      return {
+        token: localStorage.getItem('token'),
+        message: ''
+      }
+    },
+    methods: {
+      logOut: function(){
+        let self = this;
+        fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            'X-CSRFToken': token
+          },
+          credentials: 'same-origin'
+        })
+        .then(function(response){
+          return response.json();
+        })
+        .then(function(jsonResponse){
+          console.log(jsonResponse);
+          //remove token from local storage
+          localStorage.removeItem('token');
+          self.message = jsonResponse['message']; 
+          self.token = '';
+          self.$router.push("/");
+        })
+        .catch(function(error){
+          console.log(error);
+        })
+      }
+    }
 });
 
 Vue.component('app-footer', {
@@ -53,33 +78,31 @@ const Home = Vue.component('home', {
 			<div class= "card card-body">
 				<h1 class="card-title">Photogram</h1>
 				<p class="lead">Share photos of your favourite  moments with your friends, families and the world</p>
-				<button id="register" class="btn btn-success" v-on:click="nextpage1">Register</button>
-				<button id="login" class="btn btn-primary" v-on:click="nextpage2">Login</button>
+				<button id="register" class="btn btn-success" v-on:click="registrationPage">Register</button>
+				<button id="login" class="btn btn-primary" v-on:click="loginPage">Login</button>
 			</div>
 		</div>
     </div>
    `,
     methods:{ 
-        nextpage1:function(event){
-            
-           this.$router.push("/register")
-        },
-		nextpage2:function(event){
-            
-           this.$router.push("/login")
-        }
+      registrationPage: function(){  
+        this.$router.push("/register")
+      },
+		  loginPage: function(){ 
+        this.$router.push("/login")
+      }
     }
 });
 
-const register=Vue.component('register',{
+const Register = Vue.component('register',{
     template:`
     
     <div class="d-flex justify-content-center"> 
       <div>
       <h2>Registration Form</h2>
-      <h4 v-if="message" class="success">{{ message }}</h4>
-        <ul v-if="errors.length > 0" class="error_list">
-          <li v-for="error in errors" class="error_items">
+      <h4 v-if="message" class="alert alert-success">{{ message }}</h4>
+        <ul v-if="errors.length > 0">
+          <li v-for="error in errors" class="alert alert-danger">
             <div>{{ error }}</div>
           </li>
         </ul>
@@ -135,7 +158,7 @@ const register=Vue.component('register',{
     </div> 
     <div class="d-flex flex-column"> 
     <p></p>
-    <button type="submit" name="submit" class="btn btn-secondary">REGISTER</button> 
+    <button type="submit" name="submit" class="btn btn-success">REGISTER</button> 
     </div>
     </form>
     </div> 
@@ -167,8 +190,8 @@ const register=Vue.component('register',{
           return response.json();
         })
         .then(function(jsonResponse){ 
-          if (jsonResponse['errors']) {
-            self.errors = jsonResponse['errors'];
+          if (jsonResponse['error']) {
+            self.errors = jsonResponse['error'];
             setTimeout(function(){ self.errors = [] }, 5000);
           } else {
             self.message = jsonResponse['message'];
@@ -183,16 +206,20 @@ const register=Vue.component('register',{
     }
 }); 
 
-
-
-const login =Vue.component('login',{
+const Login = Vue.component('login',{
     template:`
       <div id="lgn">
         <div class="d-flex justify-content-center">
           <div>
             <h2>Login</h2>
+            <h4 v-if="message" class="alert alert-success">{{ message }}</h4>
+            <ul v-if="errors.length > 0">
+              <li v-for="error in errors" class="alert alert-danger">
+                <div>{{ error }}</div>
+              </li>
+            </ul>
             <div class="jumbotron"> 
-              <form id="loginForm" method="POST" enctype="multipart/form-data">
+              <form id="loginForm" method="POST" @submit.prevent="loginUser">
                 <div>
                   <br>
                   <br>
@@ -212,7 +239,7 @@ const login =Vue.component('login',{
                 <br>
                 <div class="d-flex flex-column"> 
                   <p></p>
-                  <button type="submit" name="submit" class="btn btn-success">LOGIN</button>
+                  <button type="Submit" class="btn btn-success">Login</button>
                 </div>
               </form>
             </div> 
@@ -223,6 +250,7 @@ const login =Vue.component('login',{
     data: function() {
        return {
          message: '',
+         token: '',
          errors: []
        }
     },
@@ -244,14 +272,26 @@ const login =Vue.component('login',{
           return response.json();
         })
         .then(function(jsonResponse){
-          if (jsonResponse['errors']) {
-            self.errors = jsonResponse['errors'];
+          if (jsonResponse['error']) {
+            self.errors = jsonResponse['error'];
             setTimeout(function(){ self.errors = [] }, 5000);
           } else {
+            console.log(jsonResponse);
+            //get the token
+            let jwt_token = jsonResponse['token'];
             self.message = jsonResponse['message'];
+            //store the token to local storage and self
+            localStorage.setItem('token', jwt_token);
+            console.info('Token generated and added to local storage.');
+            self.token = jwt_token;
+            self.$router.push("/explore");
             setTimeout(function(){ self.message = ''; }, 5000);
           }
         })
+        .catch(function(error){
+          console.log(error);
+          self.errors = error;
+        });
       }
     }  
 })
@@ -272,40 +312,93 @@ const user = Vue.component('user',{
 
     </div>
     `,
-    data: function() {
-      return {
-          user:[],
-          uc:user_id,
-          Other:other,
-          post:[],
-          follow:[]
-      };
-},
+    
 Created: function(){
   let self =this;
   let userid = ""+self.uc;
   fetch('/api/users/'+userid,{
     method: 'GET',
     'headers':{
-      'Authorization': 'Bearer'+ localStorage.getItem('token'),
-      'X-CSRFToken': token
+      'Authorization': 'Bearer'+ localStorage.getItem('token')
     },
     credentials: 'same-origin'
   })
   .then(function(response){
+    console.log(response.json())
+    if (!response.ok){
+      self.$router.push("/explore");
+    }
     return response.json();
   })
   .then(function (jsonResponse) {
+    console.log(jsonResponse.response["0"])
     self.user= jsonResponse.response["0"]; 
       console.log(jsonResponse);
   })
   .catch(function(error){
-    // console.log(error);
+    console.log(error);
  });
 },
-methods:{
-
+data: function() {
+  return {
+      user:[],
+      uc:user_id,
+      Other:other,
+      post:[],
+      follow:[]
+  };
 }
+
+});
+const Explore = Vue.component('explore', {
+  template: `
+    <div class="container">
+      <div class="col-md-10">
+        <h2 v-if="posts.length == 0" class="alert alert-info">{{ message }}</h2>
+        <ul v-if="posts.length > 0">
+          <li v-for="post in posts">
+            <div>{{ post }}</div>
+          </li>
+        </ul>
+      </div>
+      <div class="col-md-2">
+        <button type="button" class="btn btn-primary">New Post</button>
+      </div>
+    </div>
+  `,
+  created: function(){
+    let self = this;
+    fetch('/api/posts', {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    })
+    .then(function(response){
+      //prevent unauthorized acces
+      if (!response.ok){
+        self.$router.push("/login");
+      }
+      return response.json();
+    })
+    .then(function(jsonResponse){
+      console.log(jsonResponse);
+      if (jsonResponse['posts']) {
+        self.posts = jsonResponse['posts'];
+      }
+      self.message = jsonResponse['message'];
+    })
+    .catch(function(error){
+      console.log(error);
+    });
+  },
+  data: function(){
+    return {
+      message: '',
+      error: [],
+      posts: []
+    }
+  }
 
 })
 
@@ -324,13 +417,14 @@ const NotFound = Vue.component('not-found', {
 const router = new VueRouter({
     mode: 'history',
     routes: [
-        {path: "/", component: Home},
-        // Put other routes here
-		 {path:"/register",component:register},
-    {path:"/login",component:login},	
-    {path:"/users/:user_id",component:user},	 
+      { path: "/", component: Home},
+        // Put other routes here	
+       {path:"/users/:user_id",component:user},	 
+		  { path:"/register", component: Register },
+      { path:"/login", component: Login },
+      { path: "/explore", component: Explore },		 
         // This is a catch all route in case none of the above matches
-        {path: "*", component: NotFound}
+      { path: "*", component: NotFound}
     ]
 });
 
