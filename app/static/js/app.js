@@ -307,12 +307,11 @@ const user = Vue.component('user',{
         <img class="card-img-left" src="{{user.profile_photo}}" alt="Card image cap">
         <h5 class="card-title">{{user.username}}</h5>
         <div class="card-body">
-          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+          <p class="card-text">{{user.biography}}</p>
         </div>
       </div>
     </div>
-    `,
-    
+    `,    
 Created: function(){
   let self =this;
   let userid = ""+self.uc;
@@ -346,11 +345,12 @@ data: function() {
       follow:[]
   };
 }
-
 });
+
 const Explore = Vue.component('explore', {
   template: `
-    <div class="container">
+    <div>
+    <div class="container col-sm-8">
       <div class="col-md-10">
         <h2 v-if="posts.length == 0" class="alert alert-info">{{ message }}</h2>
         <ul v-if="posts.length > 0">
@@ -365,14 +365,10 @@ const Explore = Vue.component('explore', {
           </li>
         </ul>
       </div>
-      <form>
-        <div class="form-group">
-        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-        </div>
-        <div class
+      <div class="col-sm-2">
         <button type="button" class="btn btn-primary">New Post</button>
-      </form>
-  
+      </div>
+    </div>
     </div>
   `,
   created: function(){

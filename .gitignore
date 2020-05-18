@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-**/.vscode
-**/venv
-=======
 # Files to ignore when adding and committing files to a repository
 .DS_Store
 Thumbs.db
@@ -15,4 +11,3 @@ venv/
 
 # PyCharm
 .idea
->>>>>>> 81f7b434e2316f978bb893a8d50f5aec21534170
