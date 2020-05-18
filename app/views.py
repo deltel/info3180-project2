@@ -125,19 +125,12 @@ def login():
             # print(user.joined_on.strftime())
             payload = {
                 'sub': user.id,
-                'username': user.username,
-                'firstname': user.firstname,
-                'lastname': user.lastname,
-                'email': user.email,
-                'location': user.location,
-                'biography': user.biography,
-                'profile_photo': user.profile_photo,
-                'joined_on': user.joined_on.strftime('%d-%m-%Y')
+                'username': user.username
             }
             #generate jwt token
             token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
             #login_user(user)
-            return make_response(jsonify({ 'token': token, 'message': 'User successfully logged in.'}), 200)
+            return make_response(jsonify({'id': user.id, 'token': token, 'message': 'User successfully logged in.'}), 200)
             #return render_template('index.html', form=form)
             # return render_template()
 
@@ -182,7 +175,7 @@ def new_post(user_id):
         photo = form.photo.data
 
         filename = secure_filename(photo.filename)
-        profile_picture.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+        photo.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
         created = format_date_joined()
         #adding the post to the database
         post = Post(user_id,filename, caption, created)
@@ -228,9 +221,18 @@ def follower_count(user_id):
 def all_posts():
     posts = db.session.query(Post).all()
     if len(posts) > 0:
-        return jsonify(error=None, posts=posts, message='Posts found'), 200
+        post1 = []
+        for post in posts:
+            el = {
+                'id': post.id,
+                'user_id': post.user_id,
+                'photo': post.photo,
+                'caption': post.caption,
+                'created_on': post.created_on
+            }
+        post1.append(el)
+        return jsonify(error=None, posts=post1, message='Posts found'), 200
     return make_response(jsonify({'message': 'There are no posts'}), 200)
-
 
 @app.route('/api/posts/<int:post_id>/like', methods=['POST'])
 @requires_auth
