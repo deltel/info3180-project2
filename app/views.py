@@ -228,7 +228,8 @@ def all_posts():
                 'user_id': post.user_id,
                 'photo': post.photo,
                 'caption': post.caption,
-                'created_on': post.created_on
+                'created_on': post.created_on,
+                'username': post.users.username
             }
         post1.append(el)
         return jsonify(error=None, posts=post1, message='Posts found'), 200

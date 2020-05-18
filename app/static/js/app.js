@@ -287,7 +287,6 @@ const Login = Vue.component('login',{
             localStorage.setItem('id', id);
             console.info('Token generated and added to local storage.');
             self.token = jwt_token;
-            self.$router.push("/explore");
             setTimeout(function(){ self.message = ''; }, 5000);
             self.$router.push("/explore");
           }
@@ -396,6 +395,7 @@ const Explore = Vue.component('explore', {
         self.posts = jsonResponse['posts'];
       }
       self.message = jsonResponse['message'];
+      console.log(jsonResponse);
     })
     .catch(function(error){
       console.log(error);
