@@ -351,6 +351,7 @@ data: function() {
 }
 
 });
+
 const Explore = Vue.component('explore', {
   template: `
     <div class="container">
