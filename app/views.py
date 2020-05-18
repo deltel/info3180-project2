@@ -230,7 +230,7 @@ def all_posts():
                 'created_on': post.created_on,
                 'username': post.users.username
             }
-        post1.append(el)
+            post1.append(el)
         return jsonify(error=None, posts=post1, message='Posts found'), 200
     return make_response(jsonify({'message': 'There are no posts'}), 200)
 
