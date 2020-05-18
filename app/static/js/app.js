@@ -299,17 +299,14 @@ const Login = Vue.component('login',{
 
 const user = Vue.component('user',{
   template:`
-      <div>          
-      <div class="Profile pic">
-        <img class="imgs" src="{{ url_for('static', filename="uploads/" + i) }}" />
+      <div>  
+      <div class="card" style="width: 18rem;">
+        <img class="card-img-left" src="{{user.profile_photo}}" alt="Card image cap">
+        <h5 class="card-title">{{user.username}}</h5>
+        <div class="card-body">
+          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+        </div>
       </div>
-      <div>
-      <h3>{{user.firstname}} {{user.lastname}}</h3>
-      </div>
-      <div>
-      <p>{{user.biography}}</p>
-      </div>
-
     </div>
     `,
     

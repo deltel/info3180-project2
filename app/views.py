@@ -21,6 +21,7 @@ from flask import _request_ctx_stack
 from functools import wraps
 import base64
 
+# db.create_all()
 ##
 #checkout the read me
 ##
