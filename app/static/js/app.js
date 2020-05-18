@@ -300,6 +300,58 @@ const Login = Vue.component('login',{
     }  
 });
 
+
+const user = Vue.component('user',{
+  template:`
+      <div>          
+      <div class="Profile pic">
+        <img class="imgs" src="{{ url_for('static', filename="uploads/" + i) }}" />
+      </div>
+      <div>
+      <h3>{{user.firstname}} {{user.lastname}}</h3>
+      </div>
+      <div>
+      <p>{{user.biography}}</p>
+      </div>
+
+    </div>
+    `,
+    
+Created: function(){
+  let self =this;
+  let userid = ""+self.uc;
+  fetch('/api/users/'+userid,{
+    method: 'GET',
+    'headers':{
+      'Authorization': 'Bearer'+ localStorage.getItem('token')
+    },
+    credentials: 'same-origin'
+  })
+  .then(function(response){
+    if (!response.ok){
+      self.$router.push("/users/:userid");
+    }
+    return response.json();
+  })
+  .then(function (jsonResponse) {
+    self.user= jsonResponse.response["0"]; 
+      console.log(jsonResponse);
+  })
+  .catch(function(error){
+    console.log(error);
+ });
+},
+data: function() {
+  return {
+      user:[],
+      uc:user_id,
+      Other:other,
+      post:[],
+      follow:[]
+  };
+}
+
+});
 const Explore = Vue.component('explore', {
   template: `
     <div class="container">
@@ -307,13 +359,24 @@ const Explore = Vue.component('explore', {
         <h2 v-if="posts.length == 0" class="alert alert-info">{{ message }}</h2>
         <ul v-if="posts.length > 0">
           <li v-for="post in posts">
-            <div>{{ post }}</div>
+            <div class="card" style="width: 18rem;">
+              <h5 class="card-title">{{posts.username}}</h5>
+              <img class="card-img-top" src="{{posts.photo}}" alt="Card image cap">
+              <div class="card-body">
+                <p class="card-text">{{posts.body}}</p>
+              </div>
+            </div>
           </li>
         </ul>
       </div>
-      <div class="col-md-2">
-        <button type="button" class="btn btn-primary" v-on:click="newPost">New Post</button>
-      </div>
+      <form>
+        <div class="form-group">
+        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+        </div>
+        <div class
+        <button type="button" class="btn btn-primary">New Post</button>
+      </form>
+  
     </div>
   `,
   created: function(){
@@ -332,7 +395,6 @@ const Explore = Vue.component('explore', {
       return response.json();
     })
     .then(function(jsonResponse){
-      console.log(jsonResponse);
       if (jsonResponse['posts']) {
         self.posts = jsonResponse['posts'];
       }

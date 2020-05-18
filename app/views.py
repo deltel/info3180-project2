@@ -121,6 +121,7 @@ def login():
         #check if user exists an id password corresponds
         if user is not None and check_password_hash(user.password, password):
             # get user id, load into session
+            # print(user.joined_on.strftime())
             payload = {
                 'sub': user.id,
                 'username': user.username
@@ -130,6 +131,7 @@ def login():
             #login_user(user)
             return make_response(jsonify({'id': user.id, 'token': token, 'message': 'User successfully logged in.'}), 200)
             #return render_template('index.html', form=form)
+            # return render_template()
 
     return make_response(jsonify( error=form_errors(form) ), 400)
 
