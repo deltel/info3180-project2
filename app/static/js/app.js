@@ -350,25 +350,27 @@ data: function() {
 const Explore = Vue.component('explore', {
   template: `
     <div>
+    
     <div class="container col-sm-8">
       <div class="col-md-10">
         <h2 v-if="posts.length == 0" class="alert alert-info">{{ message }}</h2>
         <ul v-if="posts.length > 0">
           <li v-for="post in posts">
             <div class="card" style="width: 18rem;">
-              <h5 class="card-title">{{posts.username}}</h5>
-              <img class="card-img-top" src="{{posts.photo}}" alt="Card image cap">
+              <a v=on:click="viewUser(post.user_id)"><h5 class="card-title">{{post.username}}</h5></a>
+              <img class="card-img-top" v-bind:src="'/static/upload/' + post.photo" alt="Card image cap">
               <div class="card-body">
-                <p class="card-text">{{posts.body}}</p>
+                <p class="card-text">{{post.caption}}</p>
               </div>
             </div>
           </li>
         </ul>
       </div>
       <div class="col-sm-2">
-        <button type="button" class="btn btn-primary">New Post</button>
+        <button type="button" class="btn btn-primary" v-on:click="newPost">New Post</button>
       </div>
     </div>
+    {{posts.username}}
     </div>
   `,
   created: function(){
@@ -389,6 +391,7 @@ const Explore = Vue.component('explore', {
     .then(function(jsonResponse){
       if (jsonResponse['posts']) {
         self.posts = jsonResponse['posts'];
+        console.log(self.posts[0].photo)
       }
       self.message = jsonResponse['message'];
       console.log(jsonResponse);
@@ -407,6 +410,9 @@ const Explore = Vue.component('explore', {
   methods: {
     newPost: function(){
       this.$router.push("/post");
+    },
+    viewUser: function(user_id){
+      // this.$router.push("/users/${user_id}")
     }
   }
 
@@ -493,7 +499,8 @@ const router = new VueRouter({
 		  { path: "/register", component: Register },
       { path: "/login", component: Login },
       { path: "/explore", component: Explore },
-      { path: "/post", component: Post },		 
+      { path: "/post", component: Post },
+      { path: "/users/:user_id", component: User}		 
         // This is a catch all route in case none of the above matches
       { path: "*", component: NotFound}
     ]
