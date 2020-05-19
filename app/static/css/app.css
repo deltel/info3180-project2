@@ -11,3 +11,10 @@ body {
     padding-right: 1em;
     background-color: #a7e092;
 }
+
+ul {
+    list-style-type: none;
+  }
+
+.top-buffer { margin-top:40px; }
+
