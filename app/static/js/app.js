@@ -357,7 +357,7 @@ const Explore = Vue.component('explore', {
         <ul v-if="posts.length > 0">
           <li v-for="post in posts">
             <div class="card" style="width: 18rem;">
-              <a v=on:click="viewUser(post.user_id)"><h5 class="card-title">{{post.username}}</h5></a>
+              <a @click="viewUser(post.user_id)"><h5 class="card-title">{{post.username}}</h5></a>
               <img class="card-img-top" v-bind:src="'/static/upload/' + post.photo" alt="Card image cap">
               <div class="card-body">
                 <p class="card-text">{{post.caption}}</p>
@@ -412,7 +412,8 @@ const Explore = Vue.component('explore', {
       this.$router.push("/post");
     },
     viewUser: function(user_id){
-      // this.$router.push("/users/${user_id}")
+      id = ""+user_id
+      this.$router.push("/users/"+id)
     }
   }
 
@@ -500,7 +501,7 @@ const router = new VueRouter({
       { path: "/login", component: Login },
       { path: "/explore", component: Explore },
       { path: "/post", component: Post },
-      { path: "/users/:user_id", component: User}		 
+      // { path: "/users/:user_id", component: User},		 
         // This is a catch all route in case none of the above matches
       { path: "*", component: NotFound}
     ]
