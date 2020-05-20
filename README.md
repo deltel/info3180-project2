@@ -7,6 +7,7 @@ All APIs have been coded.
 
 ## Views
 Login, Register, Explore and Logout functional.
+Can follow user, does not prevent multiple follows by a single user or following oneself.
 
 ## Testing APIs
 Don't know how to use the postman, been giving me problems for a while now. 
@@ -47,3 +48,9 @@ Email: luser@anon.com
 Location: Kingston, Jamaica
 Biography: The first user ever logged in
 Photo: image.jpg
+
+Username: user3  
+Password: monster
+
+Username: user4
+Password: password

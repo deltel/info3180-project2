@@ -49,6 +49,7 @@ Vue.component('app-header', {
           //remove token from local storage
           localStorage.removeItem('token');
           localStorage.removeItem('id');
+          sessionStorage.removeItem('id_details');
           self.message = jsonResponse['message']; 
           self.token = '';
           self.$router.push("/");
@@ -75,20 +76,21 @@ Vue.component('app-footer', {
 const Home = Vue.component('home', {
    template: `
     <div class="row">
-    <div class="col-sm-6">
-    <div class= "card ">
-    <img src="/static/upload/beach.jpg">
-    </div>
-    </div>   
-    <div class="col-sm-6">
-			<div class= "card card-body">
-				<h1 class="card-title">Photogram</h1>
-        <p class="lead">Share photos of your favourite  moments with your friends, families and the world</p>
-        <div >
-				<button id="register" class="btn btn-success" v-on:click="registrationPage">Register</button>
-				<button id="login" class="btn btn-primary" v-on:click="loginPage">Login</button>
-			</div>
-    </div>
+      <div class="col-sm-6">
+        <div class= "card ">
+          <img src="/static/upload/beach.jpg">
+        </div>
+      </div>   
+      <div class="col-sm-6">
+			  <div class= "card card-body">
+				  <h1 class="card-title">Photogram</h1>
+          <p class="lead">Share photos of your favourite  moments with your friends, families and the world</p>
+            <div>
+				      <button id="register" class="btn btn-success" v-on:click="registrationPage">Register</button>
+				      <button id="login" class="btn btn-primary" v-on:click="loginPage">Login</button>
+			      </div>
+        </div>
+      </div>
     </div>
    `,
     methods:{ 
@@ -328,12 +330,12 @@ const User = Vue.component('user',{
             <p>Posts</p>
           </div>
           <div class="col" align="center">
-            ###<h2>0</h2>
+            <h2>{{followers}}</h2>
             <p>Followers</p>
           </div>
         </div>
         <div class="col" align="center">
-          <button type="button" class="btn btn-success" v-on:click="" style="width:100%">Follow</button>
+          <button type="button" class="btn btn-success" v-on:click="followUser" style="width:100%">{{ btn_message }}</button>
         </div>
           
         </div>
@@ -342,8 +344,8 @@ const User = Vue.component('user',{
   `,    
   created: function(){
     let self = this;
-    let user_id = sessionStorage.getItem('id_details');
-    fetch(`/api/users/${user_id}`,{
+    self.user_id = sessionStorage.getItem('id_details');
+    fetch(`/api/users/${self.user_id}`,{
       method: 'GET',
       headers: {
         'Authorization': 'Bearer '+ localStorage.getItem('token')
@@ -359,7 +361,9 @@ const User = Vue.component('user',{
     .then(function (jsonResponse) {
       self.user = jsonResponse['user']; 
       self.posts = jsonResponse['posts'];
+      self.followers = self.followerCount();
       console.log(jsonResponse);
+      console.log(self.btn_message);
     })
     .catch(function(error){
       console.log(error);
@@ -368,9 +372,59 @@ const User = Vue.component('user',{
   data: function() {
     return {
       user: '',
+      user_id: '',
+      btn_message: 'Follow',
       posts: [],
-      follow: []
+      followers: 0
     };
+  },
+  methods: {
+    followUser: function(){
+      let self = this;
+      fetch(`/api/users/${self.user_id}/follow`, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+          'X-CSRFToken': token
+        },
+        credentials: 'same-origin'
+      })
+      .then(function(response){
+        return response.json();
+      })
+      .then(function(jsonResponse){
+        self.btn_message = 'Following';
+        self.message = jsonResponse['message'];
+        self.followers = self.followerCount();
+        console.log(jsonResponse);
+      })
+      .catch(function(error){
+        console.log(error);
+      });
+    },
+    followerCount: function(){
+      let self = this;
+      fetch(`/api/users/${self.user_id}/follow`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      })
+      .then(function(response){
+        return response.json();
+      })
+      .then(function(jsonResponse){
+        self.followers = jsonResponse['followers'];
+        if(jsonResponse['following']){
+          self.btn_message = 'Following';
+        } else {
+          self.btn_message = 'Follow';
+        }
+      })
+      .catch(function(error){
+        console.log(error);
+      });
+    }
   }
 });
 
@@ -386,7 +440,7 @@ const Explore = Vue.component('explore', {
                 <div class="row top-buffer">
                   <div class="card" style="width: 40rem;">
                     <div class="row" style="padding-left:20px;padding-top:20px;">  
-                      ###<img class="card-img-top" v-bind:src="'/static/upload/' + post.photo" alt="" style="width:30px;height:30px;">
+                      <img class="card-img-top" v-bind:src="'/static/upload/' + post.photo" alt="" style="width:30px;height:30px;">
                       <a @click="viewUser(post.user_id)" class="pointer">
                       <h5 class="card-title" style="padding-left:10px;padding-bottom:10px;">{{post.username}}</h5></a>
                     </div>

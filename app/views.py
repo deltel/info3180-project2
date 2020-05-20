@@ -93,7 +93,7 @@ def register():
         password = form.password.data 
         #password is already hashed in the models.py...consider removing the line below
         #password=generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
-        firstname = form.username.data
+        firstname = form.firstname.data
         lastname = form.lastname.data
         email = form.email.data
         location = form.location.data
@@ -233,13 +233,23 @@ def follow_user(user_id):
 @app.route('/api/users/<int:user_id>/follow', methods=['GET'])
 @requires_auth
 def follower_count(user_id):
+    followed = False
+    user = g.current_user
     follows = Follow.query.filter_by(user_id=user_id).all()
+    following = Follow.query.filter(
+        Follow.follower_id==user['sub'], Follow.user_id==user_id).first()
     if follows is not None: 
         follower_count = len(follows)
-        return make_response(jsonify({'followers': follower_count}), 200)
+        if following is not None:
+            followed = True
+        return make_response(jsonify({
+            'followers': follower_count, 
+            'following': followed}),
+            200)
     return make_response(jsonify({
         'followers': 0, 
-        'message': 'No followers'
+        'message': 'No followers',
+        'following': followed
         }), 200)
 
 
