@@ -74,15 +74,21 @@ Vue.component('app-footer', {
 
 const Home = Vue.component('home', {
    template: `
-    <div class="jumbotron">
-		<div class="row">
+    <div class="row">
+    <div class="col-sm-6">
+    <div class= "card ">
+    <img src="/static/upload/beach.jpg">
+    </div>
+    </div>   
+    <div class="col-sm-6">
 			<div class= "card card-body">
 				<h1 class="card-title">Photogram</h1>
-				<p class="lead">Share photos of your favourite  moments with your friends, families and the world</p>
+        <p class="lead">Share photos of your favourite  moments with your friends, families and the world</p>
+        <div >
 				<button id="register" class="btn btn-success" v-on:click="registrationPage">Register</button>
 				<button id="login" class="btn btn-primary" v-on:click="loginPage">Login</button>
 			</div>
-		</div>
+    </div>
     </div>
    `,
     methods:{ 
@@ -303,12 +309,33 @@ const Login = Vue.component('login',{
 const User = Vue.component('user',{
   template:
   `
-    <div>  
-      <div class="card" style="width: 18rem;">
-        <img class="card-img-left" v-bind:src="'/static/upload/' + user.profile_photo" alt="Card image cap"> 
-        <h5 class="card-title">{{user.username}}</h5>
-        <div class="card-body">
-          <p class="card-text">{{user.biography}}</p>
+    <div class="card" style="width: 60rem; padding:20px;">
+      <div class="row">
+        <div class="col-sm-2">
+          <img class="card-img-left" v-bind:src="'/static/upload/' + user.profile_photo" alt="" style="height:150px; width:150px;"> 
+        </div>
+        <div class="col-sm-7" style="padding-left:40px;">
+          <h5 >{{user.firstname}} {{user.lastname}}</h5>
+          <p>{{user.location}}</p>
+          <p>Member since {{user.joined_on}} </p>
+          <p>{{user.biography}} </p>
+        </div>
+
+        <div class="col-sm-3">
+        <div class="row">
+          <div class="col" align="center">
+            ###<h2>0</h2>
+            <p>Posts</p>
+          </div>
+          <div class="col" align="center">
+            ###<h2>0</h2>
+            <p>Followers</p>
+          </div>
+        </div>
+        <div class="col" align="center">
+          <button type="button" class="btn btn-success" v-on:click="" style="width:100%">Follow</button>
+        </div>
+          
         </div>
       </div>
     </div>
@@ -370,13 +397,13 @@ const Explore = Vue.component('explore', {
                         <div class="col-sm-8">
                           <h6>
                             <img class="card-img-top" src="/static/upload/heart.png" alt="" style="width:20px;height:20px;">
-                            ### {{post.likes}}
+                            {{post.likes}}
                             likes                
                           </h6>
                         </div>
                         <div class="col-sm-4">
                           <h6>
-                            ### {{post.created_on}}
+                            {{post.created_on}}
                           </h6>   
                         </div>
                       </div>
@@ -458,7 +485,7 @@ const Post = Vue.component('post', {
             Please enter a caption
           </div>
         </div>
-        <button type="Submit" class="btn btn-success">Submit</button>
+        <button type="Submit" class="btn btn-primary">Submit</button>
       </form>
     </div>
   `,
