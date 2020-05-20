@@ -326,7 +326,7 @@ const User = Vue.component('user',{
         <div class="col-sm-3">
         <div class="row">
           <div class="col" align="center">
-            ###<h2>0</h2>
+            <h2>{{ posts_count }}</h2>
             <p>Posts</p>
           </div>
           <div class="col" align="center">
@@ -361,6 +361,7 @@ const User = Vue.component('user',{
     .then(function (jsonResponse) {
       self.user = jsonResponse['user']; 
       self.posts = jsonResponse['posts'];
+      self.posts_count = self.posts.length;
       self.followers = self.followerCount();
       console.log(jsonResponse);
       console.log(self.btn_message);
@@ -375,6 +376,7 @@ const User = Vue.component('user',{
       user_id: '',
       btn_message: 'Follow',
       posts: [],
+      post_count: 0,
       followers: 0
     };
   },
@@ -513,7 +515,7 @@ const Explore = Vue.component('explore', {
   },
   methods: {
     newPost: function(){
-      this.$router.push("/post");
+      this.$router.push("/posts/new");
     },
     viewUser: function(user_id){
       sessionStorage.setItem('id_details', user_id);
@@ -604,7 +606,7 @@ const router = new VueRouter({
 		  { path: "/register", component: Register },
       { path: "/login", component: Login },
       { path: "/explore", component: Explore },
-      { path: "/post", component: Post },
+      { path: "/posts/new", component: Post },
       { path: "/users/:user_id", component: User},		 
         // This is a catch all route in case none of the above matches
       { path: "*", component: NotFound}
