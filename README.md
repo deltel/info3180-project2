@@ -7,7 +7,7 @@ All APIs have been coded.
 
 ## Views
 Login, Register, Explore and Logout functional.
-Can follow user, does not prevent multiple follows by a single user or following oneself.
+Can follow user, does not prevent multiple follows by a single user or following oneself. Similar limitations for likes.
 
 ## Testing APIs
 Don't know how to use the postman, been giving me problems for a while now. 

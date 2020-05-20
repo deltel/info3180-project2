@@ -452,7 +452,7 @@ const Explore = Vue.component('explore', {
                       <div class="row top-buffer">
                         <div class="col-sm-8">
                           <h6>
-                            <img class="card-img-top" src="/static/upload/heart.png" alt="" style="width:20px;height:20px;">
+                            <img class="card-img-top pointer" src="/static/upload/heart.png" v-on:click="likePost(post.id)" alt="" style="width:20px;height:20px;">
                             {{post.likes}}
                             likes                
                           </h6>
@@ -520,6 +520,29 @@ const Explore = Vue.component('explore', {
     viewUser: function(user_id){
       sessionStorage.setItem('id_details', user_id);
       this.$router.push(`/users/${user_id}`);
+    },
+    likePost: function(post_id){
+      let self = this;
+      fetch(`/api/posts/${post_id}/like`, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+          'X-CSRFToken': token
+        },
+        credentials: 'same-origin'
+      })
+      .then(function(response){
+        return response.json();
+      })
+      .then(function(jsonResponse){
+        self.message = jsonResponse['message'];
+        self.posts.forEach(post => {
+          if(post.id == post_id){ post.likes = jsonResponse['likes']; }
+        });
+      })
+      .catch(function(error){
+        console.log(error);
+      });
     }
   }
 
