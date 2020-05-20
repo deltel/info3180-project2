@@ -300,99 +300,100 @@ const Login = Vue.component('login',{
 });
 
 
-const user = Vue.component('user',{
-  template:`
-      <div>  
+const User = Vue.component('user',{
+  template:
+  `
+    <div>  
       <div class="card" style="width: 18rem;">
-        <img class="card-img-left" src="{{user.profile_photo}}" alt="Card image cap">
+        <img class="card-img-left" v-bind:src="'/static/upload/' + user.profile_photo" alt="Card image cap"> 
         <h5 class="card-title">{{user.username}}</h5>
         <div class="card-body">
           <p class="card-text">{{user.biography}}</p>
         </div>
       </div>
     </div>
-    `,    
-Created: function(){
-  let self =this;
-  let userid = ""+self.uc;
-  fetch('/api/users/'+userid,{
-    method: 'GET',
-    'headers':{
-      'Authorization': 'Bearer'+ localStorage.getItem('token')
-    },
-    credentials: 'same-origin'
-  })
-  .then(function(response){
-    if (!response.ok){
-      self.$router.push("/users/:userid");
-    }
-    return response.json();
-  })
-  .then(function (jsonResponse) {
-    self.user= jsonResponse.response["0"]; 
+  `,    
+  created: function(){
+    let self = this;
+    let user_id = sessionStorage.getItem('id_details');
+    fetch(`/api/users/${user_id}`,{
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer '+ localStorage.getItem('token')
+      }
+    })
+    .then(function(response){
+      //prevent unauthorized acces
+      if (!localStorage.getItem('token')){
+        self.$router.push("/login");
+      }
+      return response.json();
+    })
+    .then(function (jsonResponse) {
+      self.user = jsonResponse['user']; 
+      self.posts = jsonResponse['posts'];
       console.log(jsonResponse);
-  })
-  .catch(function(error){
-    console.log(error);
- });
-},
-data: function() {
-  return {
-      user:[],
-      uc:user_id,
-      Other:other,
-      post:[],
-      follow:[]
-  };
-}
+    })
+    .catch(function(error){
+      console.log(error);
+    });
+  },
+  data: function() {
+    return {
+      user: '',
+      posts: [],
+      follow: []
+    };
+  }
 });
 
 const Explore = Vue.component('explore', {
   template: `
     <div>
-    <div class="row">
-    <div class="container col-sm-8">
-      <div class="col-md-10">
-        <h2 v-if="posts.length == 0" class="alert alert-info">{{ message }}</h2>
-        <ul v-if="posts.length > 0" >
-          <li v-for="post in posts">
-            <div class="row top-buffer">
-            <div class="card" style="width: 40rem;">
-              <div class="row" style="padding-left:20px;padding-top:20px;">  
-              ###<img class="card-img-top" v-bind:src="'/static/upload/' + post.photo" alt="" style="width:30px;height:30px;">
-                <a @click="viewUser(post.user_id)">
-                <h5 class="card-title" style="padding-left:10px;padding-bottom:10px;">{{post.username}}</h5></a>
-              </div>
-              <img class="card-img-top" v-bind:src="'/static/upload/' + post.photo" alt="Card image cap">
-              <div class="card-body">
-                <p class="card-text">{{post.caption}}</p>
+      <div class="row">
+        <div class="container col-sm-8">
+          <div class="col-md-10">
+            <h2 v-if="posts.length == 0" class="alert alert-info">{{ message }}</h2>
+            <ul v-if="posts.length > 0" >
+              <li v-for="post in posts">
                 <div class="row top-buffer">
-
-                <div class="col-sm-8">
-                  <h6>
-                    <img class="card-img-top" src="/static/upload/heart.png" alt="" style="width:20px;height:20px;">
-                     ### num
-                    likes                
-                  </h6>
+                  <div class="card" style="width: 40rem;">
+                    <div class="row" style="padding-left:20px;padding-top:20px;">  
+                      ###<img class="card-img-top" v-bind:src="'/static/upload/' + post.photo" alt="" style="width:30px;height:30px;">
+                      <a @click="viewUser(post.user_id)" class="pointer">
+                      <h5 class="card-title" style="padding-left:10px;padding-bottom:10px;">{{post.username}}</h5></a>
+                    </div>
+                    <img class="card-img-top" v-bind:src="'/static/upload/' + post.photo" alt="Card image cap">
+                    <div class="card-body">
+                      <p class="card-text">{{post.caption}}</p>
+                      <div class="row top-buffer">
+                        <div class="col-sm-8">
+                          <h6>
+                            <img class="card-img-top" src="/static/upload/heart.png" alt="" style="width:20px;height:20px;">
+                            ### {{post.likes}}
+                            likes                
+                          </h6>
+                        </div>
+                        <div class="col-sm-4">
+                          <h6>
+                            ### {{post.created_on}}
+                          </h6>   
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div class="col-sm-4">
-                  <h6>
-                    ### Date
-                  </h6>   
-
                 </div>
-              </div>
-            </div>
-          </li>
-        </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="row top-buffer">
+          <div class="col-sm-2">
+            <button type="button" class="btn btn-primary" v-on:click="newPost">New Post</button>
+          </div>
+        </div>
+        {{posts.username}}
       </div>
-      </div>
-      <div class="row top-buffer">
-      <div class="col-sm-2">
-        <button type="button" class="btn btn-primary" v-on:click="newPost">New Post</button>
-      </div>
-    </div>
-    {{posts.username}}
     </div>
   `,
   created: function(){
@@ -434,8 +435,8 @@ const Explore = Vue.component('explore', {
       this.$router.push("/post");
     },
     viewUser: function(user_id){
-      id = ""+user_id
-      this.$router.push("/users/"+id)
+      sessionStorage.setItem('id_details', user_id);
+      this.$router.push(`/users/${user_id}`);
     }
   }
 
@@ -523,7 +524,7 @@ const router = new VueRouter({
       { path: "/login", component: Login },
       { path: "/explore", component: Explore },
       { path: "/post", component: Post },
-      // { path: "/users/:user_id", component: User},		 
+      { path: "/users/:user_id", component: User},		 
         // This is a catch all route in case none of the above matches
       { path: "*", component: NotFound}
     ]

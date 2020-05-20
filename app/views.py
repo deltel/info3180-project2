@@ -149,11 +149,39 @@ def logout():
 @app.route('/api/users/<int:user_id>', methods=['GET'])
 @requires_auth
 def user_details(user_id):
-    user = g.current_user
+    user = UserProfile.query.filter_by(id=user_id).first()
     posts = Post.query.filter_by(user_id=user_id).all()
-    if posts is not None:
-        return make_response(jsonify(user=user, posts=posts), 200)
-    return make_response(jsonify(user=user, message="No posts have been made."), 200)
+
+    user_details = {
+        'id': user.id,
+        'username': user.username,
+        'firstname': user.firstname,
+        'lastname': user.lastname,
+        'email': user.email,
+        'location': user.location,
+        'biography': user.biography,
+        'profile_photo': user.profile_photo,
+        'joined_on': user.joined_on
+    }
+    if len(posts) > 0:
+        post1 = []
+        for post in posts:
+            #like count
+            likes = Like.query.filter_by(post_id=post.id).all()
+            like_count = len(likes)
+            el = {
+                'id': post.id,
+                'user_id': post.user_id,
+                'photo': post.photo,
+                'caption': post.caption,
+                'created_on': post.created_on,
+                'username': post.users.username,
+                'likes': like_count
+            }
+            post1.append(el)
+        return make_response(jsonify(posts=post1, user=user_details), 200)
+    
+    return make_response(jsonify(message="No posts have been made.", user=user_details), 200)
 
 
 @app.route('/api/users/<int:user_id>/posts', methods=['GET'])
@@ -220,16 +248,21 @@ def follower_count(user_id):
 @requires_auth    
 def all_posts():
     posts = db.session.query(Post).all()
+
     if len(posts) > 0:
         post1 = []
         for post in posts:
+            #like count
+            likes = Like.query.filter_by(post_id=post.id).all()
+            like_count = len(likes)
             el = {
                 'id': post.id,
                 'user_id': post.user_id,
                 'photo': post.photo,
                 'caption': post.caption,
                 'created_on': post.created_on,
-                'username': post.users.username
+                'username': post.users.username,
+                'likes': like_count
             }
             post1.append(el)
         return jsonify(error=None, posts=post1, message='Posts found'), 200

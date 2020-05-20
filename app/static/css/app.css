@@ -2,14 +2,8 @@ body {
     padding-top: 5rem;
 }
 
-.error_list {
-    background-color: #e09292;
-}
-
-.success {
-    padding-left: 1em;
-    padding-right: 1em;
-    background-color: #a7e092;
+.pointer {
+    cursor: pointer;
 }
 
 ul {
