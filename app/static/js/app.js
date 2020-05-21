@@ -9,14 +9,14 @@ Vue.component('app-header', {
     
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto">
+          </ul>
+          <ul class="navbar-nav navbar-right">
             <li class="nav-item active">
               <router-link class="nav-link" to="/">Home<span class="sr-only">(current)</span></router-link>
             </li>
-			      <li class="nav-item active">
+            <li class="nav-item active">
               <router-link to="/explore" class="nav-link">Explore</router-link>
             </li>
-          </ul>
-          <ul class="navbar-nav navbar-right">
             <li v-if="token" class="nav-item active">
               <a href="#" class="nav-link" v-on:click.stop="logOut">Logout</a>
             </li>
@@ -566,6 +566,7 @@ const Post = Vue.component('post', {
   template: `
     <div class="container">
       <form id="post-form" class="was-validated" enctype="multipart/form-data" @submit.prevent="newPost">
+        <h4 v-if="message" class="alert alert-success">{{ message }}</h4>
         <div class="custom-file mb-3">
           <label for="photo" class="custom-file-label">Photo</label>
           <input type="file" class="custom-file-input" name="photo" id="photo" required>
@@ -574,9 +575,7 @@ const Post = Vue.component('post', {
         <div class="mb-3">
           <label for="caption">Caption</label>
           <textarea class="form-control is-invalid" name="caption" id="caption" required></textarea>
-          <div class="invalid-feedback">
-            Please enter a caption
-          </div>
+          <div class="invalid-feedback"></div>
         </div>
         <button type="Submit" class="btn btn-primary">Submit</button>
       </form>
@@ -613,7 +612,8 @@ const Post = Vue.component('post', {
       .then(function(jsonResponse){
         console.log(jsonResponse);
         self.message = jsonResponse['message'];
-        self.$router.push("/explore");
+        postForm.reset();
+        setTimeout(function(){ self.message = '' }, 5000);
       })
       .catch(function(error){
         console.log(error);
