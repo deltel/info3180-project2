@@ -77,17 +77,18 @@ const Home = Vue.component('home', {
    template: `
     <div class="row">
       <div class="col-sm-6">
-        <div class= "card ">
+        <div class= "card">
           <img src="/static/upload/beach.jpg">
         </div>
       </div>   
-      <div class="col-sm-6">
-			  <div class= "card card-body">
+
+      <div class="card col-sm-6" style="height:416px">
+			  <div class= "card-body" >
 				  <h1 class="card-title">Photogram</h1>
           <p class="lead">Share photos of your favourite  moments with your friends, families and the world</p>
-            <div>
-				      <button id="register" class="btn btn-success" v-on:click="registrationPage">Register</button>
-				      <button id="login" class="btn btn-primary" v-on:click="loginPage">Login</button>
+            <div class="col" align="center" style="padding-top:40px">
+				      <button id="register" class="btn btn-success" v-on:click="registrationPage" style="width:40%;">Register</button>
+				      <button id="login" class="btn btn-primary" v-on:click="loginPage" style="width:40%;">Login</button>
 			      </div>
         </div>
       </div>
@@ -311,36 +312,47 @@ const Login = Vue.component('login',{
 const User = Vue.component('user',{
   template:
   `
-    <div class="card" style="width: 60rem; padding:20px;">
-      <div class="row">
-        <div class="col-sm-2">
-          <img class="card-img-left" v-bind:src="'/static/upload/' + user.profile_photo" alt="" style="height:150px; width:150px;"> 
-        </div>
-        <div class="col-sm-7" style="padding-left:40px;">
-          <h5 >{{user.firstname}} {{user.lastname}}</h5>
-          <p>{{user.location}}</p>
-          <p>Member since {{user.joined_on}} </p>
-          <p>{{user.biography}} </p>
-        </div>
+  <div>
+  <div class="card" style="width: 60rem; padding:20px;">
+  <div class="row">
+    <div class="col-sm-2">
+      <img class="card-img-left" v-bind:src="'/static/upload/' + user.profile_photo" alt="" style="height:150px; width:150px;"> 
+    </div>
+    <div class="col-sm-7" style="padding-left:40px;">
+      <h5 >{{user.firstname}} {{user.lastname}}</h5>
+      <p>{{user.location}}</p>
+      <p>Member since {{user.joined_on}} </p>
+      <p>{{user.biography}} </p>
+    </div>
 
-        <div class="col-sm-3">
-        <div class="row">
-          <div class="col" align="center">
-            <h2>{{ posts_count }}</h2>
-            <p>Posts</p>
-          </div>
-          <div class="col" align="center">
-            <h2>{{followers}}</h2>
-            <p>Followers</p>
-          </div>
-        </div>
-        <div class="col" align="center">
-          <button type="button" class="btn btn-success" v-on:click="followUser" style="width:100%">{{ btn_message }}</button>
-        </div>
-          
-        </div>
+    <div class="col-sm-3">
+    <div class="row">
+      <div class="col" align="center">
+        <h2>{{ posts_count }}</h2>
+        <p>Posts</p>
+      </div>
+      <div class="col" align="center">
+        <h2>{{followers}}</h2>
+        <p>Followers</p>
       </div>
     </div>
+    <div class="col" align="center">
+      <button type="button" class="btn btn-success" v-on:click="followUser" style="width:100%">{{ btn_message }}</button>
+    </div>
+
+    </div>
+  </div>
+  </div>
+    <div class="row">
+        <div v-for="post in posts" :key="post.photo">
+          <div class="col-sm-3" >
+              <img v-bind:src="'/static/upload/' + post.photo" style="height:250px; width:250px; margin:1rem;">
+        </div>
+    </div>
+        </div>
+  </div>
+
+
   `,    
   created: function(){
     let self = this;
@@ -363,8 +375,8 @@ const User = Vue.component('user',{
       self.posts = jsonResponse['posts'];
       self.posts_count = self.posts.length;
       self.followers = self.followerCount();
-      console.log(jsonResponse);
-      console.log(self.btn_message);
+      // console.log(jsonResponse);
+      // console.log(self.posts.photo);
     })
     .catch(function(error){
       console.log(error);
@@ -442,7 +454,7 @@ const Explore = Vue.component('explore', {
                 <div class="row top-buffer">
                   <div class="card" style="width: 40rem;">
                     <div class="row" style="padding-left:20px;padding-top:20px;">  
-                      <img class="card-img-top" v-bind:src="'/static/upload/' + post.photo" alt="" style="width:30px;height:30px;">
+                      <img class="card-img-top" v-bind:src="'/static/upload/' + post.profile_photo" alt="" style="width:30px;height:30px;">
                       <a @click="viewUser(post.user_id)" class="pointer">
                       <h5 class="card-title" style="padding-left:10px;padding-bottom:10px;">{{post.username}}</h5></a>
                     </div>
@@ -451,11 +463,13 @@ const Explore = Vue.component('explore', {
                       <p class="card-text">{{post.caption}}</p>
                       <div class="row top-buffer">
                         <div class="col-sm-8">
+                        <a @click = "likePost(post.userid)">
                           <h6>
                             <img class="card-img-top pointer" src="/static/upload/heart.png" v-on:click="likePost(post.id)" alt="" style="width:20px;height:20px;">
                             {{post.likes}}
                             likes                
                           </h6>
+                          </a>
                         </div>
                         <div class="col-sm-4">
                           <h6>
@@ -497,7 +511,7 @@ const Explore = Vue.component('explore', {
     .then(function(jsonResponse){
       if (jsonResponse['posts']) {
         self.posts = jsonResponse['posts'];
-        console.log(self.posts[0].photo)
+        console.log(self.posts[0])
       }
       self.message = jsonResponse['message'];
       console.log(jsonResponse);

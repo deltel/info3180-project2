@@ -161,7 +161,7 @@ def user_details(user_id):
         'location': user.location,
         'biography': user.biography,
         'profile_photo': user.profile_photo,
-        'joined_on': user.joined_on
+        'joined_on': user.joined_on.strftime("%b %Y")
     }
     if len(posts) > 0:
         post1 = []
@@ -270,9 +270,10 @@ def all_posts():
                 'user_id': post.user_id,
                 'photo': post.photo,
                 'caption': post.caption,
-                'created_on': post.created_on,
+                'created_on': post.created_on.strftime("%d %b %Y"),
                 'username': post.users.username,
-                'likes': like_count
+                'likes': like_count,
+                'profile_photo': post.users.profile_photo
             }
             post1.append(el)
         return jsonify(error=None, posts=post1, message='Posts found'), 200
