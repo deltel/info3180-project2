@@ -161,7 +161,7 @@ def user_details(user_id):
         'location': user.location,
         'biography': user.biography,
         'profile_photo': user.profile_photo,
-        'joined_on': user.joined_on.strftime("%b %Y")
+        'joined_on': user.joined_on
     }
     if len(posts) > 0:
         post1 = []
@@ -179,7 +179,9 @@ def user_details(user_id):
                 'likes': like_count
             }
             post1.append(el)
-        return make_response(jsonify(posts=post1, user=user_details), 200)
+        return make_response(jsonify( 
+            posts=post1, 
+            user=user_details), 200)
     
     return make_response(jsonify(message="No posts have been made.", user=user_details), 200)
 
@@ -270,7 +272,7 @@ def all_posts():
                 'user_id': post.user_id,
                 'photo': post.photo,
                 'caption': post.caption,
-                'created_on': post.created_on.strftime("%d %b %Y"),
+                'created_on': post.created_on,
                 'username': post.users.username,
                 'likes': like_count,
                 'profile_photo': post.users.profile_photo

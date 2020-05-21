@@ -14,6 +14,9 @@ Vue.component('app-header', {
             <li class="nav-item active">
               <router-link class="nav-link" to="/">Home<span class="sr-only">(current)</span></router-link>
             </li>
+            <li v-if="token" class="nav-item active">
+              <a href="#" class="nav-link" v-on:click.stop="viewUser(id)">My Profile</a>
+            </li>
             <li class="nav-item active">
               <router-link to="/explore" class="nav-link">Explore</router-link>
             </li>
@@ -26,11 +29,22 @@ Vue.component('app-header', {
     `,
     data: function(){
       return {
-        token: localStorage.getItem('token'),
+        token: '',
+        id: '',
         message: ''
       }
     },
+    created: async function(){
+      let self = this;
+      await this.$nextTick();
+      self.token = localStorage.getItem('token');
+      self.id = localStorage.getItem('id');
+    },
     methods: {
+      viewUser: function(user_id){
+        sessionStorage.setItem('id_details', user_id);
+        this.$router.push(`/users/${user_id}`);
+      },
       logOut: function(){
         let self = this;
         fetch('/api/auth/logout', {
@@ -388,7 +402,7 @@ const User = Vue.component('user',{
       user_id: '',
       btn_message: 'Follow',
       posts: [],
-      post_count: 0,
+      posts_count: 0,
       followers: 0
     };
   },
@@ -511,7 +525,7 @@ const Explore = Vue.component('explore', {
     .then(function(jsonResponse){
       if (jsonResponse['posts']) {
         self.posts = jsonResponse['posts'];
-        console.log(self.posts[0])
+        console.log(self.posts[0]);
       }
       self.message = jsonResponse['message'];
       console.log(jsonResponse);
